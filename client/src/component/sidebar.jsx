@@ -14,13 +14,13 @@ export default function Sidebar() {
     <nav className="w-75 bg-white shadow-sm h-screen flex flex-col justify-between text-2xl">
       <div className="p-6">
         <div className="space-y-2 flex flex-col gap-4">
-          <NavLink to="/overview" className={linkClasses}>
+          <NavLink to="/dashboard/overview" className={linkClasses}>
             Dashboard
           </NavLink>
-          <NavLink to="/stores" className={linkClasses}>
+          <NavLink to="/dashboard/stores" className={linkClasses}>
             Stores
           </NavLink>
-          <NavLink to="/users" className={linkClasses}>
+          <NavLink to="/dashboard/users" className={linkClasses}>
             Users
           </NavLink>
         </div>
