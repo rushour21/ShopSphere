@@ -16,7 +16,8 @@ export const auth = async(req, res, next)=>{
                 id: true,
                 name: true,
                 address: true,
-                email: true
+                email: true,
+                role:true
             }
         })
         

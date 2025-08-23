@@ -6,6 +6,7 @@ import { validatePassword } from "../utils/validation.js";
 export const getstore = async (req, res) =>{
     try {
         const userRole = req.user.role;
+        const userId = req.user.id
         console.log(userRole)
         if(userRole !== "USER"){
             return res.status(403).json({ message: "Access denied" });
@@ -28,31 +29,32 @@ export const getstore = async (req, res) =>{
     }
 };
 
-export const updateRating = async (res, req)=>{
+export const updateRating = async (req, res)=>{
     try {
         const userRole = req.user.role;
         const {rating} = req.body;
         const userId = req.user.id;
-        const storeId = req.params;
+        const {storeId} = req.params;
+        const storeIdNum = Number(storeId);
         console.log(userRole)
         if(userRole !== "USER"){
             return res.status(403).json({ message: "Access denied" });
         }
         await prisma.rating.upsert({
-            where:{
-                userId_storeId : {userId, storeId}
+             where: {
+                userId_storeId: { userId, storeId: storeIdNum }
             },
-            update:{rating},
-            create:{rating, userId, storeId}
+            update: { rating },
+            create: { rating, userId, storeId: storeIdNum }
         });
 
         const avg = await prisma.rating.aggregate({
-            where:{storeId},
+            where:{storeId: storeIdNum},
             _avg:{rating:true}
         })
 
         await prisma.store.update({
-            where:{id: storeId},
+            where:{id: storeIdNum},
             data:{overallRate:avg._avg.rating || 0 }
         });
         res.status(200).json({ message: "Rating saved successfully" });

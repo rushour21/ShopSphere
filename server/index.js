@@ -4,6 +4,8 @@ import "dotenv/config"
 import authRoute from "./routes/authRoutes.js"
 import adminRoute from "./routes/adminRoutes.js"
 import dashboardRoute from "./routes/DashboardRouter.js"
+import userRoute from "./routes/userRoutes.js"
+import storeRoute from "./routes/storeRoutes.js"
 
 const app = express()
 const PORT = process.env.PORT || 3000; 
@@ -14,6 +16,8 @@ app.use(cookieParser());
 app.use(authRoute);
 app.use(adminRoute); 
 app.use(dashboardRoute); 
+app.use(userRoute); 
+app.use(storeRoute); 
 
 
 app.get('/', (req,res) => {
