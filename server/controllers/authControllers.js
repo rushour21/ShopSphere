@@ -1,12 +1,12 @@
 import prisma from "../DB/db.config.js";
-import { isvalidSignUp } from "../utils/validation.js"
+import { validateSignUp } from "../utils/validation.js"
 import bcrypt from "bcrypt"
 import JWT from "jsonwebtoken"
 
-export const createUser = async (req, res) =>{
+export const signUp = async (req, res) =>{
     try {
         console.log(req.body)
-        isvalidSignUp(req);
+        validateSignUp(req);
         const {name, email, address, password} = req.body;
         const existingUser = await prisma.user.findUnique({
                 where: { email }
@@ -26,7 +26,7 @@ export const createUser = async (req, res) =>{
         })  
         const token =  JWT.sign(
             { id: newUser.id, email: newUser.email, role: newUser.role },
-            process.env.VITE_JWT_SECRET,
+            process.env.JWT_SECRET,
             { expiresIn: "7d" }
         );
         res.cookie('token', token, {
@@ -64,7 +64,7 @@ export const logIn = async (req, res) =>{
         if(isMatch){
             const token =  JWT.sign(
                 { id: user.id, email: user.email, role: user.role },
-                process.env.VITE_JWT_SECRET,
+                process.env.JWT_SECRET,
                 { expiresIn: "7d" }
             );
 
@@ -78,8 +78,23 @@ export const logIn = async (req, res) =>{
                     email: user.email
                 },
             })
+        }else{
+            res.status(400).json({
+                message: "Invalid credentials.",
+            })
         }
     } catch (error) {
-        
+        res.status(400).json({
+            message: error.message
+        })
     }
+}
+
+export const logout= async (req, res)=>{
+    res.cookie('token', null, {
+        expires: new Date(Date.now()),
+    })
+     res.status(200).json({
+        message: "Logout successful"
+    })
 }
