@@ -36,7 +36,8 @@ export const signUp = async (req, res) =>{
             message: 'User created successfully',
             user: {
                 name: newUser.name, 
-                email: newUser.email
+                email: newUser.email,
+
             },
         })
     } catch (error) {
@@ -75,7 +76,9 @@ export const logIn = async (req, res) =>{
                 message: 'User logged in successfully',
                 user: {
                     name: user.name, 
-                    email: user.email
+                    email: user.email,
+                    address: user.address,
+                    role: user.role
                 },
             })
         }else{

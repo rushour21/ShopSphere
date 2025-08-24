@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import LoginModal from '../component/loginModal';
+import SignUpModal from '../component/signUpModal';
 
 export default function Home() {
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -87,11 +89,11 @@ export default function Home() {
           <div className="max-w-2xl mx-auto text-center px-5">
             <h2 className="text-xl font-semibold text-blue-700 mb-5">Why Users Love StoreRate</h2>
             <blockquote className="italic text-gray-800 mb-2">
-              “I found my favorite store thanks to honest reviews!”
+              "I found my favorite store thanks to honest reviews!"
             </blockquote>
             <span className="block text-sm text-gray-600 mb-4">— Kavya R.</span>
             <blockquote className="italic text-gray-800">
-              “The local search made it easy to shop for quality products.”
+              "The local search made it easy to shop for quality products."
             </blockquote>
             <span className="block text-sm text-gray-600">— Neil S.</span>
           </div>
@@ -134,48 +136,25 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* Modals (keep UI simple and clean) */}
+      {/* Modals - Pass close functions as props */}
       {showLoginModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[999]">
-          <div className="bg-white rounded-lg max-w-sm w-full p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-gray-900">Login</h2>
-              <button onClick={() => setShowLoginModal(false)} className="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
-            </div>
-            <form className="space-y-4">
-              <input type="email" className="w-full border rounded px-3 py-2" placeholder="Email"/>
-              <input type="password" className="w-full border rounded px-3 py-2" placeholder="Password"/>
-              <button className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Log In</button>
-            </form>
-            <div className="text-center mt-4">
-              <button onClick={() => {
-                setShowLoginModal(false);
-                setShowSignupModal(true);
-              }} className="text-blue-600 hover:underline">Create account?</button>
-            </div>
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 flex items-center justify-center z-50"
+          onClick={() => setShowLoginModal(false)}
+        >
+          <div onClick={(e) => e.stopPropagation()}>
+            <LoginModal onClose={() => setShowLoginModal(false)} />
           </div>
         </div>
       )}
 
       {showSignupModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[999]">
-          <div className="bg-white rounded-lg max-w-sm w-full p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-gray-900">Sign Up</h2>
-              <button onClick={() => setShowSignupModal(false)} className="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
-            </div>
-            <form className="space-y-4">
-              <input type="text" className="w-full border rounded px-3 py-2" placeholder="Full Name"/>
-              <input type="email" className="w-full border rounded px-3 py-2" placeholder="Email"/>
-              <input type="password" className="w-full border rounded px-3 py-2" placeholder="Password"/>
-              <button className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Create Account</button>
-            </form>
-            <div className="text-center mt-4">
-              <button onClick={() => {
-                setShowSignupModal(false);
-                setShowLoginModal(true);
-              }} className="text-blue-600 hover:underline">Already have an account?</button>
-            </div>
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 flex items-center justify-center z-50"
+          onClick={() => setShowSignupModal(false)}
+        >
+          <div onClick={(e) => e.stopPropagation()}>
+            <SignUpModal onClose={() => setShowSignupModal(false)} />
           </div>
         </div>
       )}
