@@ -1,5 +1,6 @@
+import axios from 'axios'
 import { Plus, Search, ChevronDown } from 'lucide-react'
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 
 export default function Users() {
   const [searchKeyword, setSearchKeyword] = useState('')
@@ -7,34 +8,64 @@ export default function Users() {
   const [selectedLocation, setSelectedLocation] = useState('')
   const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false)
 
-  const users = [
-    { id: 1, name: 'John Michael Smith', email: 'john.smith@email.com', address: '123 Elm St, Springfield', role: 'Normal User' },
-    { id: 2, name: 'Sarah Elizabeth Johnson', email: 'sarah.johnson@email.com', address: '456 Maple Ave, Riverside', role: 'Store Owner' },
-    { id: 3, name: 'Michael Robert Davis', email: 'michael.davis@email.com', address: '789 Oak Blvd, Hillside', role: 'System Administrator' },
-    { id: 4, name: 'Emily Rose Wilson', email: 'emily.wilson@email.com', address: '321 Pine St, Springfield', role: 'Normal User' },
-    { id: 5, name: 'David James Brown', email: 'david.brown@email.com', address: '654 Cedar Ave, Riverside', role: 'Store Owner' },
-    { id: 6, name: 'Lisa Marie Anderson', email: 'lisa.anderson@email.com', address: '987 Birch Rd, Hillside', role: 'Normal User' }
-  ];
+  const [users, setUsers] = useState([])
 
-  const roles = ['Normal User', 'Store Owner', 'System Administrator'];
-  const locations = [...new Set(users.map(user => user.address.split(', ')[1]))];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL}/dashboard/userlist`,
+          { withCredentials: true }
+        )
+        if (res.status === 200) {
+          setUsers(res.data.data)
+          console.log(res.data.data)
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    fetchData()
+  }, [])
+
+  // mapping backend roles to display labels
+  const roleMap = {
+    USER: 'Normal User',
+    STORE_OWNER: 'Store Owner',
+    SYSTEM_ADMIN: 'System Administrator',
+  }
+
+  const roles = Object.values(roleMap)
+
+  // extract unique city/area (after comma)
+  const locations = [
+    ...new Set(
+      users.map((user) => {
+        if (!user.address) return ''
+        const parts = user.address.split(',')
+        return parts.length > 1 ? parts[1].trim() : parts[0].trim()
+      })
+    ),
+  ].filter((loc) => loc !== '')
 
   const filteredUsers = useMemo(() => {
-    return users.filter(user => {
-      const matchesKeyword = 
+    return users.filter((user) => {
+      const displayRole = roleMap[user.role] || user.role
+      const matchesKeyword =
         user.name.toLowerCase().includes(searchKeyword.toLowerCase()) ||
         user.email.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-        user.role.toLowerCase().includes(searchKeyword.toLowerCase());
-      
-      const matchesRole = selectedRole === '' || user.role === selectedRole;
-      const matchesLocation = selectedLocation === '' || user.address.includes(selectedLocation);
-      
-      return matchesKeyword && matchesRole && matchesLocation;
-    });
-  }, [searchKeyword, selectedRole, selectedLocation]);
+        displayRole.toLowerCase().includes(searchKeyword.toLowerCase())
+
+      const matchesRole = selectedRole === '' || displayRole === selectedRole
+      const matchesLocation =
+        selectedLocation === '' || user.address?.includes(selectedLocation)
+
+      return matchesKeyword && matchesRole && matchesLocation
+    })
+  }, [searchKeyword, selectedRole, selectedLocation, users])
 
   return (
-    <div className='flex-1 p-10'>
+    <div className="flex-1 p-5 h-screen">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-3xl font-bold text-gray-900">Users Management</h2>
         <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
@@ -44,7 +75,7 @@ export default function Users() {
       </div>
 
       {/* Search Filter Section */}
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+      <div className="bg-white rounded-lg shadow-sm p-3 mb-6">
         <div className="flex flex-col md:flex-row gap-4">
           {/* Keyword Search */}
           <div className="flex-1 relative">
@@ -73,7 +104,7 @@ export default function Users() {
             </button>
             {isRoleDropdownOpen && (
               <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
-                <div 
+                <div
                   className="px-4 py-2 hover:bg-gray-50 cursor-pointer text-gray-900"
                   onClick={() => {
                     setSelectedRole('')
@@ -128,7 +159,7 @@ export default function Users() {
             {searchKeyword && (
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                 Keyword: {searchKeyword}
-                <button 
+                <button
                   onClick={() => setSearchKeyword('')}
                   className="ml-2 hover:text-blue-600"
                 >
@@ -139,7 +170,7 @@ export default function Users() {
             {selectedRole && (
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                 Role: {selectedRole}
-                <button 
+                <button
                   onClick={() => setSelectedRole('')}
                   className="ml-2 hover:text-green-600"
                 >
@@ -150,7 +181,7 @@ export default function Users() {
             {selectedLocation && (
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                 Location: {selectedLocation}
-                <button 
+                <button
                   onClick={() => setSelectedLocation('')}
                   className="ml-2 hover:text-purple-600"
                 >
@@ -170,66 +201,75 @@ export default function Users() {
       </div>
 
       {/* Users Table */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        <div className="bg-gray-50 px-6 py-3 grid grid-cols-4 gap-4 border-b border-gray-200">
-          <div className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 flex items-center space-x-1">
-            <span>Name</span>
-            <span className='text-sm text-gray-400'>↕</span>
+      <div className="bg-white rounded-lg shadow-sm h-[70%]">
+        <div className="bg-gray-50 px-6 py-3 grid grid-cols-5 gap-4 border-b border-gray-200">
+          <div className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Name
           </div>
-          <div className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 flex items-center space-x-1" >
-            <span>Email</span>
-            <span className='text-sm text-gray-400'>↕</span>
+          <div className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Email
           </div>
-          <div className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 flex items-center space-x-1">
-            <span>Address</span>
-            <span className='text-sm text-gray-400'>↕</span>
+          <div className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Address
           </div>
-          <div className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 flex items-center space-x-1">
-            <span>Role</span>
-            <span className='text-sm text-gray-400'>↕</span>
+          <div className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Role
           </div>
-        </div>  
-        
-        <div className="bg-white divide-y divide-gray-200">
+          <div className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Rating
+          </div>
+        </div>
+
+        <div className="bg-white divide-y divide-gray-200 overflow-auto h-full">
           {filteredUsers.length === 0 ? (
             <div className="px-6 py-8 text-center">
               <p className="text-gray-500">No users found matching your search criteria.</p>
             </div>
           ) : (
-            filteredUsers.map((user) => (
-              <div key={user.id} className="px-6 py-4 hover:bg-gray-50 grid grid-cols-4 gap-4 items-center">
-                <div className="whitespace-nowrap font-medium text-gray-900">
-                  {user.name}
-                </div>
-                <div className="whitespace-nowrap text-gray-500">
-                  {user.email}
-                </div>
-                <div className="text-gray-500">
-                  {user.address}
-                </div>
-                <div className="whitespace-nowrap">
+            filteredUsers.map((user, idx) => {
+              const displayRole = roleMap[user.role] || user.role
+              return (
+                <div
+                  key={idx}
+                  className="px-6 py-4 hover:bg-gray-50 grid grid-cols-5 gap-4 items-center"
+                >
+                  <div className="whitespace-nowrap font-medium text-gray-900">
+                    {user.name}
+                  </div>
+                  <div className="whitespace-nowrap text-gray-500">
+                    {user.email}
+                  </div>
+                  <div className="text-gray-500">{user.address}</div>
+                  <div>
+                    <span
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        displayRole === 'System Administrator'
+                          ? 'bg-red-100 text-red-800'
+                          : displayRole === 'Store Owner'
+                          ? 'bg-blue-100 text-blue-800'
+                          : 'bg-green-100 text-green-800'
+                      }`}
+                    >
+                      {displayRole}
+                    </span>
+                  </div>
                   <div className="flex items-center space-x-1">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          user.role === 'System Administrator' 
-                            ? 'bg-red-100 text-red-800'
-                            : user.role === 'Store Owner'
-                            ? 'bg-blue-100 text-blue-800'
-                            : 'bg-green-100 text-green-800'
-                        }`}>
-                          {user.role}
+                    {displayRole === 'Store Owner' ? (
+                      <>
+                        <span className="text-yellow-400">★</span>
+                        <span className="font-medium">
+                          {user.store?.overallRate ?? 0}
                         </span>
-                        {user?.role === 'Store Owner' && 
-                          <>
-                            <span className="text-yellow-400">★</span>
-                            <span className="font-medium">4.2</span>
-                          </>
-                        }
+                      </>
+                    ) : (
+                      <span className="text-gray-400">—</span>
+                    )}
                   </div>
                 </div>
-              </div>
-            ))
+              )
+            })
           )}
-        </div>  
+        </div>
       </div>
     </div>
   )

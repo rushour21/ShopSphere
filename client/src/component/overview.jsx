@@ -1,15 +1,33 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import StatCard from './stateCard'
 import { Plus, Star, Store, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 
 export default function Overview() {
-    const dashboardStats = {
-    totalUsers: 1247,
-    totalStores: 89,
-    totalRatings: 3456
-  };
+    const [dashboardStats, setDashboardStats] = useState({
+    totalUsers: 0,
+    totalStores: 0,
+    totalRatings: 0
+  });
+
+  useEffect(()=>{
+    const fetData = async()=>{
+        try {
+            const res = await axios.get(
+               `${import.meta.env.VITE_API_URL}/dashboard`,
+               {withCredentials:true}
+            );
+            if(res.status === 200){
+                setDashboardStats(res.data.data);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    fetData();
+  },[])
   const navigate = useNavigate()
   return (
     <div className='flex-1 p-10' >
@@ -44,14 +62,14 @@ export default function Overview() {
                     <span className="font-medium">Add New User</span>
                 </button>
                 <button
-                    onClick={() => navigate('/stores')}
+                    onClick={() => navigate('/dashboard/stores')}
                     className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     <Store className="h-6 w-6 text-green-600" />
                     <span className="font-medium">Manage Stores</span>
                 </button>
                 <button
-                    onClick={() => navigate('/users')}
+                    onClick={() => navigate('/dashboard/users')}
                     className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     <Users className="h-6 w-6 text-purple-600" />

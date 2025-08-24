@@ -1,17 +1,29 @@
+import axios from 'axios';
 import { Plus, Search } from 'lucide-react'
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 
 export default function Stores() {
   const [searchKeyword, setSearchKeyword] = useState('')
 
-  const stores = [
-    { id: 1, name: 'Tech Electronics Store', email: 'tech@store.com', address: '123 Main St, City', rating: 4.2 },
-    { id: 2, name: 'Fashion Boutique Central', email: 'fashion@boutique.com', address: '456 Oak Ave, Downtown', rating: 4.7 },
-    { id: 3, name: 'Grocery Mart Express', email: 'contact@grocerymart.com', address: '789 Pine Rd, Suburb', rating: 3.8 },
-    { id: 4, name: 'Books & Coffee Corner', email: 'info@bookscoffee.com', address: '321 Library St, City', rating: 4.5 },
-    { id: 5, name: 'Sports Gear Hub', email: 'sales@sportsgear.com', address: '654 Athletic Ave, Downtown', rating: 4.1 },
-    { id: 6, name: 'Home Decor Paradise', email: 'hello@homedecor.com', address: '987 Design Blvd, Suburb', rating: 4.3 }
-  ];
+  const [stores, steStores] = useState([]);
+
+  useEffect(()=>{
+    const fetchData = async ()=>{
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL}/dashboard/storelist`,
+          { withCredentials: true }
+        );
+        if(res.status === 200){
+          steStores(res.data.data);
+          console.log(res.data.data)
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    fetchData();
+  },[]);
 
   const filteredStores = useMemo(() => {
     return stores.filter(store => {
@@ -22,10 +34,10 @@ export default function Stores() {
       
       return matchesKeyword;
     });
-  }, [searchKeyword]);
+  }, [searchKeyword, stores]);
 
   return (
-    <div className='flex-1 p-10'>
+    <div className='flex-1 p-10 h-screen'>
       <div className="flex items-center justify-between mb-6 w-full">
         <h2 className="text-3xl font-bold text-gray-900">Stores Management</h2>
         <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
@@ -57,22 +69,6 @@ export default function Stores() {
             <span>Search</span>
           </button>
         </div>
-
-        {/* Active Filters Display 
-        {searchKeyword && (
-          <div className="mt-4 flex flex-wrap gap-2">
-            <span className="text-sm text-gray-600">Active filters:</span>
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-              Keyword: {searchKeyword}
-              <button 
-                onClick={() => setSearchKeyword('')}
-                className="ml-2 hover:text-blue-600"
-              >
-                ×
-              </button>
-            </span>
-          </div>
-        )}*/}
       </div>
 
       {/* Results Summary */}
@@ -83,7 +79,7 @@ export default function Stores() {
       </div>
 
       {/* Stores Table */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-white rounded-lg shadow-sm h-[70%">
         <div className="bg-gray-50 px-6 py-3 grid grid-cols-4 gap-4 border-b border-gray-200">
           <div className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 flex items-center space-x-1">
             <span>Name</span>
@@ -103,7 +99,7 @@ export default function Stores() {
           </div>
         </div>  
         
-        <div className="bg-white divide-y divide-gray-200">
+        <div className="bg-white divide-y divide-gray-200 h-full overflow-auto">
           {filteredStores.length === 0 ? (
             <div className="px-6 py-8 text-center">
               <p className="text-gray-500">No stores found matching your search criteria.</p>
@@ -115,15 +111,15 @@ export default function Stores() {
                   {store.name}
                 </div>
                 <div className="whitespace-nowrap text-gray-500">
-                  {store.email}
+                  {store.email} 
                 </div>
                 <div className="text-gray-500">
-                  {store.address}
+                  {store?.address}
                 </div>
                 <div className="whitespace-nowrap">
                   <div className="flex items-center space-x-1">
                     <span className="text-yellow-400">★</span>
-                    <span className="font-medium">{store.rating}</span>
+                    <span className="font-medium">{store?.overallRate}</span>
                   </div>
                 </div>
               </div>

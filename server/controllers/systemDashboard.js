@@ -31,6 +31,7 @@ export const storeList = async (req, res)=>{
         }
         const stores = await prisma.store.findMany({
             select:{
+                id:true,
                 name: true,
                 email: true,
                 address: true,
