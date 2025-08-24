@@ -37,7 +37,7 @@ export const signUp = async (req, res) =>{
             user: {
                 name: newUser.name, 
                 email: newUser.email,
-
+                address: newUser.address
             },
         })
     } catch (error) {

@@ -32,7 +32,7 @@ export const getInfo = async (req, res) => {
         if(!stoerdetails){
             return res.status(404).json({ message: "store not found." });
         }
-        res.status(201).json(stoerdetails);
+        res.status(200).json(stoerdetails);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

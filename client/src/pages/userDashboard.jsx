@@ -1,79 +1,67 @@
 import React, { useEffect, useState } from 'react'
 import { Search,Star, MapPin,User, LogOut, Eye, EyeOff,  Home,  Settings,  Edit2, Store, ArrowLeft, Mail} from 'lucide-react';
+import axios from 'axios';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function UserDashboard() {
+  const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState('dashboard');
-  const [LoggedUser, setLoggedUser] = useState({
-    name:"rushabh Ingle",
-    email: "rusj@gmail.com",
-    address: "wakad"
-  })
+  const location = useLocation();
+  const LoggedUser = location.state;  
+
+
   const [searchTerm, setSearchTerm] =useState('');
   const [searchBy, setSearchBy] =useState('name');
   const [selectedStore, setSelectedStore] =useState(null);
   const [showRatingModal, setShowRatingModal] =useState(false);
   const [newRating, setNewRating] =useState(0);
-  const [showCurrentPassword, setShowCurrentPassword] = React.useState(false);
-  const [showNewPassword, setShowNewPassword] = React.useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] =useState(false);
+  const [showNewPassword, setShowNewPassword] =  useState(false);
 
-  const [stores, setStores] =useState([
-    {
-      id: 1,
-      name: 'Tech Electronics Store',
-      address: '123 Main St, Downtown Area, City Center',
-      overallRating: 4.2,
-      userRating: 4,
-      totalRatings: 156
-    },
-    {
-      id: 2,
-      name: 'Fashion Boutique Central',
-      address: '456 Oak Avenue, Fashion District, Metro City',
-      overallRating: 4.7,
-      userRating: null,
-      totalRatings: 203
-    },
-    {
-      id: 3,
-      name: 'Grocery Mart Express',
-      address: '789 Pine Road, Suburban Mall, Westside',
-      overallRating: 3.8,
-      userRating: 3,
-      totalRatings: 89
-    },
-    {
-      id: 4,
-      name: 'Coffee House Downtown',
-      address: '321 Elm Street, Business District, Central Plaza',
-      overallRating: 4.5,
-      userRating: 5,
-      totalRatings: 67
+  useEffect(() => {
+  const fetchStore = async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URL}/getstores`,
+        { withCredentials: true }
+      );
+
+      if (res.status === 200) {
+        setStores(res.data);
+        console.log(res.data)
+      }
+    } catch (err) {
+      console.error("Error fetching stores:", err);
     }
-  ]);
+  };
+  fetchStore();
+}, []);
+  
 
-  const [formData, setFormData] = React.useState({
-      email: '',
-      password: '',
+
+  const [stores, setStores] =useState([]);
+
+  const [formData, setFormData] =useState({
       currentPassword: '',
       newPassword: '',
       confirmPassword: ''
     });
   
-    const [formErrors, setFormErrors] = React.useState({});
+    const [formErrors, setFormErrors] =useState({});
   
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setCurrentPage('login');
-    setFormData({
-      name: '',
-      email: '',
-      address: '',
-      password: '',
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: ''
-    });
+  const handleLogout = async() => {
+    try {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/logout`,
+        {},
+        { withCredentials: true })
+        if(res.status === 200){
+          navigate('/');
+        }
+    } catch (error) {
+      console.log(error.message)
+    }
+    
   };
 
   const filteredStores = stores.filter(store => {
@@ -86,8 +74,13 @@ export default function UserDashboard() {
     }
   });
 
-  const handleRatingSubmit = () => {
+  const handleRatingSubmit = async() => {
     if (newRating > 0 && selectedStore) {
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/addrating/${selectedStore.id}`,
+        {rating:newRating},
+        { withCredentials: true })
+
       setStores(prev => prev.map(store => 
         store.id === selectedStore.id 
           ? { ...store, userRating: newRating }
@@ -99,7 +92,21 @@ export default function UserDashboard() {
     }
   };
 
-  const handlePasswordUpdate = () => {
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+  const validatePassword = (password) => {
+    const errors = [];
+    if (password.length < 8) errors.push("Password must be at least 8 characters");
+    if (!/[A-Z]/.test(password)) errors.push("Must contain an uppercase letter");
+    if (!/[!@#$%^&*]/.test(password)) errors.push("Must contain a special character");
+    return errors;
+  };
+
+  const handlePasswordUpdate = async () => {
     const errors = {};
     
     if (!formData.currentPassword) {
@@ -124,14 +131,27 @@ export default function UserDashboard() {
     setFormErrors(errors);
     
     if (Object.keys(errors).length === 0) {
-      // Password update logic here
-      alert('Password updated successfully!');
-      setFormData(prev => ({
-        ...prev,
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
-      }));
+      try {
+        const res = await axios.patch(
+          `${import.meta.env.VITE_API_URL}/updatepassword`,
+          {
+            currentPassword: formData.currentPassword,
+            newPassword: formData.newPassword
+          },
+          { withCredentials: true }
+        );
+        if(res.status === 200){
+          alert(res.data.message || "Password updated successfully!");
+          
+          setFormData({
+            currentPassword: '',
+            newPassword: '',
+            confirmPassword: ''
+          });
+        }
+      } catch (err) {
+        alert(err.response?.data?.message || "Failed to update password");
+      }
     }
   };
 
@@ -166,7 +186,7 @@ export default function UserDashboard() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-6">
               <div className="flex items-center space-x-4">
-                <h1 className="text-2xl font-bold text-gray-900">Store Directory</h1>
+                <h1 className="text-2xl font-bold text-gray-900">ShopSphere</h1>
               </div>
               <div className="flex items-center space-x-4">
                 <button
@@ -232,9 +252,9 @@ export default function UserDashboard() {
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-gray-700">Overall Rating:</span>
                       <div className="flex items-center space-x-2">
-                        <StarRating rating={Math.round(store.overallRating)} readonly size="w-4 h-4" />
+                        <StarRating rating={Math.round(store.overallRate)} readonly size="w-4 h-4" />
                         <span className="text-sm font-medium text-gray-900">
-                          {store.overallRating} ({store.totalRatings} reviews)
+                          {store.overallRate} ({store.ratings.length} reviews)
                         </span>
                       </div>
                     </div>
@@ -354,7 +374,7 @@ export default function UserDashboard() {
         </header>
 
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Store Information */}
+          {/* usesr Information */}
           <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">User Information</h2>
             <div className="space-y-4">

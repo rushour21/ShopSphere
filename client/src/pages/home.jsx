@@ -12,14 +12,14 @@ export default function Home() {
       <header className="border-b bg-white sticky top-0 z-40">
         <div className="max-w-screen-xl mx-auto px-4 flex items-center justify-between h-16">
           <div className="flex items-center gap-2">
-            <span className="text-lg font-semibold text-gray-800">StoreRate</span>
+            <span className="text-2xl font-semibold text-gray-800">ShopSphere</span>
             <span className="text-xs text-gray-400">for shoppers</span>
           </div>
           <nav className="flex gap-4 items-center">
-            <button className="text-gray-500 hover:text-blue-600" onClick={() => setShowLoginModal(true)}>
+            <button className="text-gray-500 hover:text-blue-600 cursor-pointer" onClick={() => setShowLoginModal(true)}>
               Login
             </button>
-            <button className="text-white bg-blue-600 rounded px-4 py-2 hover:bg-blue-700" onClick={() => setShowSignupModal(true)}>
+            <button className="text-white bg-blue-600 rounded px-4 py-2 hover:bg-blue-700 cursor-pointer" onClick={() => setShowSignupModal(true)}>
               Sign Up
             </button>
           </nav>
@@ -37,7 +37,7 @@ export default function Home() {
               Honest ratings from real shoppers. Find trending stores, share your experience, and help others shop better.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 text-base" onClick={() => setShowSignupModal(true)}>
+              <button className="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 text-base cursor-pointer" onClick={() => setShowSignupModal(true)}>
                 Get Started Free
               </button>
               <button className="border border-gray-300 px-6 py-3 rounded text-gray-700 hover:bg-gray-100">

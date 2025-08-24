@@ -25,7 +25,7 @@ export default function SignUpModal({ onClose }) {
 
       if (res.status === 201) {
         onClose();
-        navigate("/userdashboard");
+        navigate("/userdashboard", { state: res.data.user } );
       }
     } catch (err) {
       setError(err.response?.data?.message || "Sign up failed. Please try again.");

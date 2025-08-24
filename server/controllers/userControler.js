@@ -23,7 +23,7 @@ export const getstore = async (req, res) =>{
             userRating: store.ratings?.[0]?.rating || null
         }));
 
-        res.status(201).json(response);
+        res.status(200).json(response);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

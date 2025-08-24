@@ -1,101 +1,69 @@
-import React from 'react';
-import { Store, Star, Users, LogOut, Eye, EyeOff,Settings,TrendingUp,User,Mail,MapPin,Calendar, ArrowLeftIcon, ArrowLeft} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Store, Star, Users, LogOut, Eye, EyeOff, Settings, TrendingUp, User, Mail, MapPin, Calendar, ArrowLeft } from 'lucide-react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 export default function StoreDashboard() {
   const navigate = useNavigate()
-  const [currentPage, setCurrentPage] = React.useState('dashboard'); // login, dashboard, profile
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-  const [showPassword, setShowPassword] = React.useState(false);
-  const [showCurrentPassword, setShowCurrentPassword] = React.useState(false);
-  const [showNewPassword, setShowNewPassword] = React.useState(false);
+  const [currentPage, setCurrentPage] = useState('dashboard'); // dashboard, profile
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
 
-  const [formData, setFormData] = React.useState({
-    email: '',
-    password: '',
+  const [formData, setFormData] = useState({
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
   });
 
-  const [formErrors, setFormErrors] = React.useState({});
+  const [formErrors, setFormErrors] = useState({});
 
-  // Sample store data
-  const storeData = {
-    id: 1,
-    name: 'Tech Electronics Store',
-    email: 'tech@store.com',
-    address: '123 Main St, Downtown Area, City Center',
-    averageRating: 4.2,
-    totalRatings: 156,
-    ratingsDistribution: {
-      5: 68,
-      4: 45,
-      3: 28,
-      2: 12,
-      1: 3
+  const [storeData, setStoreData] = useState({});
+  
+  useEffect(() => {    
+    const fetchData = async () => {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL}/storeinfo`,
+          { withCredentials: true })
+        if (res.status === 200) {
+          setStoreData(res.data)
+          console.log(res.data)
+        }
+      } catch (err) {
+        console.log(err)
+      }
     }
+    fetchData()
+  }, [])
+
+  // Early return if no store data
+  if (!storeData) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-emerald-600"></div>
+          <p className="mt-4 text-gray-600">Loading store data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const userRatings = storeData.ratings || [];
+  // Calculate ratings distribution from the actual data
+  const calculateRatingsDistribution = () => {
+    const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    userRatings.forEach(rating => {
+      if (rating.rating >= 1 && rating.rating <= 5) {
+        distribution[rating.rating]++;
+      }
+    });
+    return distribution;
   };
 
-  // Sample ratings data - users who rated this store
-  const userRatings = [
-    {
-      id: 1,
-      userName: 'John Michael Smith Johnson',
-      userEmail: 'john.smith@email.com',
-      userAddress: '123 Elm St, Springfield',
-      rating: 5,
-      submittedDate: '2024-01-15',
-      reviewText: 'Excellent service and great products!'
-    },
-    {
-      id: 2,
-      userName: 'Sarah Elizabeth Johnson Williams',
-      userEmail: 'sarah.johnson@email.com',
-      userAddress: '456 Maple Ave, Riverside',
-      rating: 4,
-      submittedDate: '2024-01-14',
-      reviewText: 'Good experience overall, will come back.'
-    },
-    {
-      id: 3,
-      userName: 'Michael Robert Davis Brown',
-      userEmail: 'michael.davis@email.com',
-      userAddress: '789 Oak Blvd, Hillside',
-      rating: 3,
-      submittedDate: '2024-01-13',
-      reviewText: 'Average service, room for improvement.'
-    },
-    {
-      id: 4,
-      userName: 'Emily Grace Wilson Martinez',
-      userEmail: 'emily.wilson@email.com',
-      userAddress: '321 Pine St, Westwood',
-      rating: 5,
-      submittedDate: '2024-01-12',
-      reviewText: 'Outstanding customer service!'
-    },
-    {
-      id: 5,
-      userName: 'David Christopher Anderson',
-      userEmail: 'david.anderson@email.com',
-      userAddress: '654 Cedar Ave, Northside',
-      rating: 4,
-      submittedDate: '2024-01-11',
-      reviewText: 'Quality products and friendly staff.'
-    },
-    {
-      id: 6,
-      userName: 'Lisa Michelle Thompson Lee',
-      userEmail: 'lisa.thompson@email.com',
-      userAddress: '987 Birch Rd, Eastside',
-      rating: 2,
-      submittedDate: '2024-01-10',
-      reviewText: 'Service could be better.'
-    }
-  ];
+  const ratingsDistribution = calculateRatingsDistribution();
+  const totalRatings = userRatings.length;
 
-  const StarRating = ({ rating, size = 'w-4 h-4' }) => {
+const StarRating = ({ rating, size = 'w-4 h-4' }) => {
     return (
       <div className="flex items-center space-x-1">
         {[1, 2, 3, 4, 5].map((star) => (
@@ -112,9 +80,8 @@ export default function StoreDashboard() {
     );
   };
 
-  const RatingDistributionBar = ({ stars, count, total }) => {
+const RatingDistributionBar = ({ stars, count, total }) => {
     const percentage = total > 0 ? (count / total) * 100 : 0;
-    
     return (
       <div className="flex items-center space-x-3">
         <div className="flex items-center space-x-1 w-12">
@@ -132,19 +99,35 @@ export default function StoreDashboard() {
     );
   };
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setFormData({
-      email: '',
-      password: '',
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: ''
-    });
-    navigate('/')
+  const handleLogout = async() => {
+    try {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/logout`,
+        {},
+        { withCredentials: true })
+        if(res.status === 200){
+          navigate('/');
+        }
+    } catch (error) {
+      console.log(error.message)
+    }
+    
   };
 
-  const handlePasswordUpdate = () => {
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+  const validatePassword = (password) => {
+    const errors = [];
+    if (password.length < 8) errors.push("Password must be at least 8 characters");
+    if (!/[A-Z]/.test(password)) errors.push("Must contain an uppercase letter");
+    if (!/[!@#$%^&*]/.test(password)) errors.push("Must contain a special character");
+    return errors;
+  };
+
+  const handlePasswordUpdate = async () => {
     const errors = {};
     
     if (!formData.currentPassword) {
@@ -169,17 +152,31 @@ export default function StoreDashboard() {
     setFormErrors(errors);
     
     if (Object.keys(errors).length === 0) {
-      // Password update logic here
-      alert('Password updated successfully!');
-      setFormData(prev => ({
-        ...prev,
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
-      }));
+      try {
+        const res = await axios.patch(
+          `${import.meta.env.VITE_API_URL}/updatepassword`,
+          {
+            currentPassword: formData.currentPassword,
+            newPassword: formData.newPassword
+          },
+          { withCredentials: true }
+        );
+        if(res.status === 200){
+          alert(res.data.message || "Password updated successfully!");
+          
+          setFormData({
+            currentPassword: '',
+            newPassword: '',
+            confirmPassword: ''
+          });
+        }
+      } catch (err) {
+        alert(err.response?.data?.message || "Failed to update password");
+      }
     }
   };
-  if (currentPage === 'dashboard') {
+
+if (currentPage === 'dashboard') {
     return (
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
@@ -191,7 +188,7 @@ export default function StoreDashboard() {
                   <Store className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">{storeData.name}</h1>
+                  <h1 className="text-2xl font-bold text-gray-900">{storeData?.name}</h1>
                   <p className="text-sm text-gray-600">Store Owner Dashboard</p>
                 </div>
               </div>
@@ -225,10 +222,10 @@ export default function StoreDashboard() {
                   <p className="text-sm font-medium text-gray-600">Average Rating</p>
                   <div className="flex items-center space-x-2 mt-2">
                     <span className="text-3xl font-bold text-emerald-600">
-                      {storeData.averageRating}
+                      {storeData.overallRate || 0}
                     </span>
                     <div className="flex items-center space-x-1">
-                      <StarRating rating={Math.round(storeData.averageRating)} size="w-5 h-5" />
+                      <StarRating rating={Math.round(storeData?.overallRate || 0)} size="w-5 h-5" />
                     </div>
                   </div>
                 </div>
@@ -241,7 +238,7 @@ export default function StoreDashboard() {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Total Ratings</p>
                   <p className="text-3xl font-bold text-blue-600 mt-2">
-                    {storeData.totalRatings}
+                    {totalRatings}
                   </p>
                 </div>
                 <Star className="h-12 w-12 text-blue-600" />
@@ -271,20 +268,22 @@ export default function StoreDashboard() {
                     <RatingDistributionBar
                       key={stars}
                       stars={stars}
-                      count={storeData.ratingsDistribution[stars]}
-                      total={storeData.totalRatings}
+                      count={ratingsDistribution[stars]}
+                      total={totalRatings}
                     />
                   ))}
                 </div>
                 
-                <div className="mt-6 pt-4 border-t">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Positive Ratings (4-5 ⭐)</span>
-                    <span className="font-medium text-emerald-600">
-                      {Math.round(((storeData.ratingsDistribution[4] + storeData.ratingsDistribution[5]) / storeData.totalRatings) * 100)}%
-                    </span>
+                {totalRatings > 0 && (
+                  <div className="mt-6 pt-4 border-t">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600">Positive Ratings (4-5 ⭐)</span>
+                      <span className="font-medium text-emerald-600">
+                        {Math.round(((ratingsDistribution[4] + ratingsDistribution[5]) / totalRatings) * 100)}%
+                      </span>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
 
@@ -297,8 +296,8 @@ export default function StoreDashboard() {
                 </div>
                 
                 <div className="divide-y divide-gray-200 max-h-96 overflow-y-auto">
-                  {userRatings.map((rating) => (
-                    <div key={rating.id} className="p-6 hover:bg-gray-50 transition-colors">
+                  {userRatings.length > 0 ? userRatings.map((rating, index) => (
+                    <div key={rating.user?.id || index} className="p-6 hover:bg-gray-50 transition-colors">
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">
                           <div className="flex items-center space-x-3 mb-2">
@@ -306,11 +305,11 @@ export default function StoreDashboard() {
                               <User className="h-5 w-5 text-gray-600" />
                             </div>
                             <div>
-                              <h4 className="font-medium text-gray-900">{rating.userName}</h4>
+                              <h4 className="font-medium text-gray-900">{rating.user?.name || 'Unknown User'}</h4>
                               <div className="flex items-center space-x-4 text-sm text-gray-500">
                                 <div className="flex items-center space-x-1">
                                   <Mail className="h-3 w-3" />
-                                  <span>{rating.userEmail}</span>
+                                  <span>{rating.user?.email || 'No email provided'}</span>
                                 </div>
                               </div>
                             </div>
@@ -318,7 +317,7 @@ export default function StoreDashboard() {
                           
                           <div className="flex items-center space-x-1 text-sm text-gray-500 mb-2">
                             <MapPin className="h-3 w-3" />
-                            <span>{rating.userAddress}</span>
+                            <span>No address provided</span>
                           </div>
                         </div>
                         
@@ -329,7 +328,7 @@ export default function StoreDashboard() {
                           </div>
                           <div className="flex items-center space-x-1 text-xs text-gray-500">
                             <Calendar className="h-3 w-3" />
-                            <span>{new Date(rating.submittedDate).toLocaleDateString()}</span>
+                            <span>{rating.submittedDate ? new Date(rating.submittedDate).toLocaleDateString() : 'Date not available'}</span>
                           </div>
                         </div>
                       </div>
@@ -342,7 +341,13 @@ export default function StoreDashboard() {
                         </div>
                       )}
                     </div>
-                  ))}
+                  )) : (
+                    <div className="p-6 text-center text-gray-500">
+                      <Users className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                      <p>No ratings yet</p>
+                      <p className="text-sm">Your store hasn't received any ratings yet.</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -504,4 +509,4 @@ export default function StoreDashboard() {
   }
 
   return null;
-};
+}

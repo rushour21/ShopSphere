@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export default function LoginModal({ onClose }) {
-  const [email, setEmail] = useState("ritwik@example.com");
+  const [email, setEmail] = useState("rutu@example.com");
   const [password, setPassword] = useState("Rushabh@1234");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -25,11 +25,11 @@ export default function LoginModal({ onClose }) {
         const { user } = res.data;
 
         if (user.role === "SYSTEM_ADMIN") {
-          navigate("/dashboard");
+          navigate("/dashboard", { state: res.data.user });
         } else if (user.role === "STORE_OWNER") {
           navigate("/stores");
         } else {
-          navigate("/userdashboard");
+          navigate("/userdashboard", { state: res.data.user });
         }
         onClose();
       }
