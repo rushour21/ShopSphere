@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from 'react-redux';
+import { addUser } from '../utils/userSlice';
 
 export default function SignUpModal({ onClose }) {
   const [name, setName] = useState("");
@@ -10,6 +12,7 @@ export default function SignUpModal({ onClose }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -26,6 +29,7 @@ export default function SignUpModal({ onClose }) {
       if (res.status === 201) {
         onClose();
         navigate("/userdashboard", { state: res.data.user } );
+        dispatch(addUser(res?.data?.user))
       }
     } catch (err) {
       setError(err.response?.data?.message || "Sign up failed. Please try again.");

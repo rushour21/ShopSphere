@@ -1,10 +1,11 @@
 import axios from 'axios';
 import { Plus, Search } from 'lucide-react'
 import React, { useState, useMemo, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Stores() {
   const [searchKeyword, setSearchKeyword] = useState('')
-
+  const navigate = useNavigate();
   const [stores, steStores] = useState([]);
 
   useEffect(()=>{
@@ -40,10 +41,10 @@ export default function Stores() {
     <div className='flex-1 p-10 h-screen'>
       <div className="flex items-center justify-between mb-6 w-full">
         <h2 className="text-3xl font-bold text-gray-900">Stores Management</h2>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
+        <Link to= "/dashboard/createstore"><button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
           <Plus className="h-4 w-4" />
           <span>Add Store</span>
-        </button>
+        </button></Link>
       </div>
 
       {/* Search Filter Section */}
@@ -79,7 +80,7 @@ export default function Stores() {
       </div>
 
       {/* Stores Table */}
-      <div className="bg-white rounded-lg shadow-sm h-[70%">
+      <div className="bg-white rounded-lg shadow-sm h-[70%]">
         <div className="bg-gray-50 px-6 py-3 grid grid-cols-4 gap-4 border-b border-gray-200">
           <div className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 flex items-center space-x-1">
             <span>Name</span>

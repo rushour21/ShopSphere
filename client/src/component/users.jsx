@@ -1,6 +1,8 @@
 import axios from 'axios'
 import { Plus, Search, ChevronDown } from 'lucide-react'
 import React, { useState, useMemo, useEffect } from 'react'
+import UserModal from './createUserModal'
+
 
 export default function Users() {
   const [searchKeyword, setSearchKeyword] = useState('')
@@ -9,6 +11,8 @@ export default function Users() {
   const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false)
 
   const [users, setUsers] = useState([])
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -68,7 +72,7 @@ export default function Users() {
     <div className="flex-1 p-5 h-screen">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-3xl font-bold text-gray-900">Users Management</h2>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
+        <button onClick={() => setShowAddUserModal(true)} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
           <Plus className="h-4 w-4" />
           <span>Add User</span>
         </button>
@@ -271,6 +275,12 @@ export default function Users() {
           )}
         </div>
       </div>
+      {/* User Modal */}
+      <UserModal 
+        isOpen={showAddUserModal}
+        onClose={() => setShowAddUserModal(false)}
+        onUserAdded={(newUser) => setUsers((prev) => [...prev, newUser])}
+      />
     </div>
   )
 }

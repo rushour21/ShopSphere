@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from 'react-redux';
+import { addUser } from '../utils/userSlice';
 import axios from "axios";
 
 export default function LoginModal({ onClose }) {
@@ -8,6 +10,7 @@ export default function LoginModal({ onClose }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -23,13 +26,14 @@ export default function LoginModal({ onClose }) {
 
       if (res.status === 201) {
         const { user } = res.data;
+        dispatch(addUser(user))
 
         if (user.role === "SYSTEM_ADMIN") {
-          navigate("/dashboard", { state: res.data.user });
+          navigate("/dashboard", { state: user });
         } else if (user.role === "STORE_OWNER") {
           navigate("/stores");
         } else {
-          navigate("/userdashboard", { state: res.data.user });
+          navigate("/userdashboard", { state: user });
         }
         onClose();
       }

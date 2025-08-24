@@ -49,6 +49,7 @@ export const createUser = async (req, res)=>{
 export const createStore = async (req, res) => {
   try {
     const userRole = req.user.role;
+    console.log(req.body)
     if (userRole !== "SYSTEM_ADMIN") {
       return res.status(403).json({ message: "Access denied" });
     }
@@ -57,12 +58,12 @@ export const createStore = async (req, res) => {
     if (!name || !email || !address || !ownerId) {
       return res.status(400).json({ message: "All fields are required" });
     }
-
+    const ownerIdInt = Number(ownerId);
     // check if user already owns a store
     const isownedStore = await prisma.store.findFirst({
       where: {
         owner: {
-          id: ownerId
+          id: ownerIdInt
         }
       }
     });
@@ -77,10 +78,17 @@ export const createStore = async (req, res) => {
         email,
         address,
         owner: {
-          connect: { id: ownerId }
+          connect: { id: ownerIdInt }
         }
       }
     });
+
+    await prisma.user.update({
+      where:{id:ownerIdInt},
+      data:{
+        role:"STORE_OWNER"
+      }
+    })
 
     res.status(201).json({
       message: "Store created successfully",
@@ -92,3 +100,29 @@ export const createStore = async (req, res) => {
     });
   }
 };
+
+export const usersToassign = async (req,res) =>{
+  try {
+    const userRole = req.user.role;
+    if (userRole !== "SYSTEM_ADMIN") {
+      return res.status(403).json({ message: "Access denied" });
+    }
+    const getusers = await prisma.user.findMany({
+      where:{
+        role:"STORE_OWNER",
+        storeId: null,
+      },
+      select:{
+        id:true,
+        name:true
+      }
+    })
+    res.status(200).json({getusers});
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return res.status(500).json({
+      message: "Something went wrong",
+      error: error.message,
+    });
+  }
+}
