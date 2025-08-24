@@ -10,7 +10,7 @@ import storeRoute from "./routes/storeRoutes.js"
 
 const app = express()
 app.use(cors({
-  origin: 'https://shop-sphere-pied.vercel.app/',
+  origin: 'https://shop-sphere-pied.vercel.app',
   credentials:true
 })) 
 
