@@ -27,6 +27,7 @@ export default function LoginModal({ onClose }) {
       if (res.status === 201) {
         const { user } = res.data;
         dispatch(addUser(user))
+        localStorage.setItem("loggedUser", JSON.stringify(user));
 
         if (user.role === "SYSTEM_ADMIN") {
           navigate("/dashboard", { state: user });

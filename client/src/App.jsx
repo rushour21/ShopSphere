@@ -23,7 +23,7 @@ function App() {
           <Dashboard />
         </ProtectedRoute>
       }>
-        <Route index element={<Navigate to="/dashboard/overview" />} />
+        <Route index element={<Overview />} />
         <Route path='overview' element={<Overview />} />
         <Route path='stores' element={<Stores />} />
         <Route path='users' element={<Users />} />

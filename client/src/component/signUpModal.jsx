@@ -30,6 +30,7 @@ export default function SignUpModal({ onClose }) {
         onClose();
         navigate("/userdashboard", { state: res.data.user } );
         dispatch(addUser(res?.data?.user))
+        localStorage.setItem("loggedUser", JSON.stringify(res?.data?.user));
       }
     } catch (err) {
       setError(err.response?.data?.message || "Sign up failed. Please try again.");
