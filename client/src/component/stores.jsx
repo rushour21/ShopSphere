@@ -120,7 +120,7 @@ export default function Stores() {
                 <div className="whitespace-nowrap">
                   <div className="flex items-center space-x-1">
                     <span className="text-yellow-400">★</span>
-                    <span className="font-medium">{store?.overallRate}</span>
+                    <span className="font-medium">{store?.overallRate?.toFixed(1)}</span>
                   </div>
                 </div>
               </div>

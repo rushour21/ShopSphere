@@ -254,7 +254,7 @@ export default function UserDashboard() {
                       <div className="flex items-center space-x-2">
                         <StarRating rating={Math.round(store.overallRate)} readonly size="w-4 h-4" />
                         <span className="text-sm font-medium text-gray-900">
-                          {store.overallRate} ({store.ratings.length} reviews)
+                          {store.overallRate?.toFixed(1)} ({store.ratings.length} reviews)
                         </span>
                       </div>
                     </div>
@@ -266,7 +266,7 @@ export default function UserDashboard() {
                           <>
                             <StarRating rating={store.userRating} readonly size="w-4 h-4" />
                             <span className="text-sm font-medium text-indigo-600">
-                              {store.userRating}/5
+                              {store.userRating?.toFixed(1)}/5
                             </span>
                           </>
                         ) : (

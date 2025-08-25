@@ -43,14 +43,14 @@ export default function Users() {
 
   // extract unique city/area (after comma)
   const locations = [
-    ...new Set(
-      users.map((user) => {
-        if (!user.address) return ''
-        const parts = user.address.split(',')
-        return parts.length > 1 ? parts[1].trim() : parts[0].trim()
-      })
-    ),
-  ].filter((loc) => loc !== '')
+  ...new Set(
+    users.map((user) => {
+      const parts = user?.address?.split(',')
+      if (!parts) return ''
+      return parts.length > 1 ? parts[1].trim() : parts[0].trim()
+    })
+  ),
+].filter((loc) => loc !== '')
 
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {

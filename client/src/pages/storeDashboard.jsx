@@ -222,10 +222,10 @@ if (currentPage === 'dashboard') {
                   <p className="text-sm font-medium text-gray-600">Average Rating</p>
                   <div className="flex items-center space-x-2 mt-2">
                     <span className="text-3xl font-bold text-emerald-600">
-                      {storeData.overallRate || 0}
+                      {storeData.overallRate?.toFixed(1) || 0}
                     </span>
                     <div className="flex items-center space-x-1">
-                      <StarRating rating={Math.round(storeData?.overallRate || 0)} size="w-5 h-5" />
+                      <StarRating rating={Math.round(storeData?.overallRate?.toFixed(1) || 0)} size="w-5 h-5" />
                     </div>
                   </div>
                 </div>

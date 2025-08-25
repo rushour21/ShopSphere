@@ -5,8 +5,8 @@ import { addUser } from '../utils/userSlice';
 import axios from "axios";
 
 export default function LoginModal({ onClose }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("rushabh@example.com");
+  const [password, setPassword] = useState("Rushabh@1234");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
