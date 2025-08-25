@@ -5,8 +5,8 @@ import { addUser } from '../utils/userSlice';
 import axios from "axios";
 
 export default function LoginModal({ onClose }) {
-  const [email, setEmail] = useState("rushabh@example.com");
-  const [password, setPassword] = useState("Rushabh@1234");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -92,9 +92,14 @@ export default function LoginModal({ onClose }) {
 
       {/* Footer */}
       <div className="text-center mt-4">
-        <button className="text-blue-600 hover:underline cursor-pointer">
-          Create account?
-        </button>
+        <button className="text-blue-600 hover:underline cursor-pointer"
+            onClick={() => {
+              setEmail("rushabh@example.com");
+              setPassword("Rushabh@1234");
+            }}
+          >
+            Demo Admin
+          </button>
       </div>
     </div>
   );
