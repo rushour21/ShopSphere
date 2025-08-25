@@ -262,7 +262,7 @@ export default function Users() {
                       <>
                         <span className="text-yellow-400">★</span>
                         <span className="font-medium">
-                          {user.store?.overallRate ?? 0}
+                          {user.store?.overallRate?.toFixed(1) ?? 0}
                         </span>
                       </>
                     ) : (
